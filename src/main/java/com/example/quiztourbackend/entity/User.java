@@ -160,4 +160,34 @@ public class User {
     public void addScore(Score score) {
         this.scores.add(score);
     }
+
+    // Method to update user profile from a UserDTO (for profile update)
+    public void updateUser(UserDTO userDTO) {
+        if (userDTO.getUsername() != null) {
+            this.username = userDTO.getUsername();
+        }
+        if (userDTO.getFirstName() != null) {
+            this.firstName = userDTO.getFirstName();
+        }
+        if (userDTO.getLastName() != null) {
+            this.lastName = userDTO.getLastName();
+        }
+        if (userDTO.getEmail() != null) {
+            this.email = userDTO.getEmail();
+        }
+        if (userDTO.getPhoneNumber() != null) {
+            this.phoneNumber = userDTO.getPhoneNumber();
+        }
+        if (userDTO.getAddress() != null) {
+            this.address = userDTO.getAddress();
+        }
+        if (userDTO.getProfilePicture() != null) {
+            this.profilePicture = userDTO.getProfilePicture();
+        }
+
+        // If password is updated, make sure to encode the password before saving (if applicable)
+        if (userDTO.getPassword() != null) {
+            this.password = userDTO.getPassword();  // In real cases, encode password
+        }
+    }
 }
