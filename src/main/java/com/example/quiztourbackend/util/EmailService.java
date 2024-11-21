@@ -1,6 +1,6 @@
 package com.example.quiztourbackend.util;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
@@ -8,41 +8,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-    private final JavaMailSender emailSender;
+    @Autowired
+    private JavaMailSender javaMailSender;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
-
-    public EmailService(JavaMailSender emailSender) {
-        this.emailSender = emailSender;
-    }
-
-    // Send password reset email
-    public void sendPasswordResetEmail(String toEmail, String resetLink) {
+    public void sendEmail(String to, String subject, String text) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("Password Reset");
-        message.setText("Click here to reset your password: " + resetLink);
-        emailSender.send(message);
-    }
-
-    // Send notification email for new quiz tournament
-    public void sendQuizNotificationEmail(String toEmail, String quizName, Long quizId) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
-        message.setSubject("New Quiz Tournament Created");
-        message.setText("A new quiz tournament '" + quizName + "' (ID: " + quizId + ") has been created. Join now!");
-        emailSender.send(message);
-    }
-
-    public void sendCustomEmail(String toEmail, String subject, String messageText) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromEmail);
-        message.setTo(toEmail);
+        message.setTo(to);
         message.setSubject(subject);
-        message.setText(messageText);
-        emailSender.send(message);
+        message.setText(text);
+        message.setFrom("luxeliving@gmail.com");  // Optional: can be same as spring.mail.username
+
+        try {
+            javaMailSender.send(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Failed to send email: " + e.getMessage());
+        }
+
+    }
+
+    public void sendQuizNotificationEmail(String email, String name, Long id) {
     }
 }
