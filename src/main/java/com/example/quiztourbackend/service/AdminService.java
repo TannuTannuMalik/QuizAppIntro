@@ -53,15 +53,6 @@ public class AdminService {
         quizRepository.delete(quiz);
     }
 
-    public void notifyUsersAboutNewQuiz(Long quizId) {
-        List<User> users = userRepository.findAll();
-        users.stream().filter(user -> !user.getUsername().equals("admin"))
-                .forEach(user -> {
-                    Quiz quiz = quizRepository.findById(quizId)
-                            .orElseThrow(() -> new RuntimeException("Quiz not found"));
-                    emailService.sendQuizNotificationEmail(user.getEmail(), quiz.getName(), quiz.getId());
-                });
-    }
 
     // Get all quizzes
     public List<Quiz> getAllQuizzes() {

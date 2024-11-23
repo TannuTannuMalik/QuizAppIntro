@@ -28,7 +28,6 @@ public class UserService {
         this.emailService = emailService;
     }
 
-    // User Registration with Validation and Logging
     public User registerUser(UserDTO userDTO) {
         logger.info("Attempting to register user with username: {}", userDTO.getUsername());
 
@@ -46,6 +45,7 @@ public class UserService {
         // Create new User from DTO and store the plain text password
         User user = new User(userDTO);
         user.setPassword(userDTO.getPassword()); // Storing plain text password
+        user.setRole(userDTO.getRole() != null ? userDTO.getRole() : "player"); // Set role to 'player' by default
 
         try {
             // Save the user in the repository
@@ -57,6 +57,7 @@ public class UserService {
             throw new RuntimeException("Error occurred during registration");
         }
     }
+
 
     // User Login with Plaintext Password Check
     public User login(LoginRequest loginRequest) {

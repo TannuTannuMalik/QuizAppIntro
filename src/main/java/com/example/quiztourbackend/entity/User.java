@@ -28,7 +28,7 @@ public class User {
 
     @NotBlank(message = "Role is required")
     @Column(nullable = false)
-    private String role; // Role could be "ADMIN" or "PLAYER"
+    private String role = "PLAYER";  // Default role is "PLAYER"
 
     @NotBlank(message = "First name is required")
     @Column(nullable = false)
@@ -51,14 +51,13 @@ public class User {
     private Set<Score> scores = new HashSet<>(); // Track quiz scores
 
     // Default constructor
-    public User() {
-    }
+    public User() {}
 
     // Constructor using UserDTO to initialize User fields
     public User(UserDTO userDTO) {
         this.username = userDTO.getUsername();
         this.password = userDTO.getPassword(); // Don't forget to encode password later
-        this.role = userDTO.getRole(); // Now using role from UserDTO
+        this.role = userDTO.getRole() != null ? userDTO.getRole() : "PLAYER"; // Default to "PLAYER"
         this.firstName = userDTO.getFirstName();
         this.lastName = userDTO.getLastName();
         this.email = userDTO.getEmail();
@@ -189,5 +188,15 @@ public class User {
         if (userDTO.getPassword() != null) {
             this.password = userDTO.getPassword();  // In real cases, encode password
         }
+    }
+
+    // Custom method to check if the user is an Admin
+    public boolean isAdmin() {
+        return "ADMIN".equals(this.role);
+    }
+
+    // Custom method to check if the user is a Player
+    public boolean isPlayer() {
+        return "PLAYER".equals(this.role);
     }
 }

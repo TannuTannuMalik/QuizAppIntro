@@ -5,8 +5,10 @@ import com.example.quiztourbackend.repository.QuizRepository;
 import com.example.quiztourbackend.dto.QuizDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizService {
@@ -67,5 +69,53 @@ public class QuizService {
         Quiz quiz = quizRepository.findById(quizId)
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
         quizRepository.delete(quiz);
+    }
+
+    // Fetch questions dynamically from OpenTDB API and map to application's data structure
+    public List<QuizDTO> fetchQuestionsFromAPI() {
+        String apiUrl = "https://opentdb.com/api.php?amount=10";
+        RestTemplate restTemplate = new RestTemplate();
+
+        // Fetch data from the OpenTDB API
+        Map<String, Object> response = restTemplate.getForObject(apiUrl, Map.class);
+        if (response == null || response.get("results") == null) {
+            throw new RuntimeException("Failed to fetch questions from OpenTDB API");
+        }
+
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> results = (List<Map<String, Object>>) response.get("results");
+
+        // Map OpenTDB questions to QuizDTO
+        return results.stream()
+                .map(this::mapToQuizDTO)
+                .collect(Collectors.toList());
+    }
+
+    // Map OpenTDB API response to QuizDTO
+    private QuizDTO mapToQuizDTO(Map<String, Object> questionData) {
+        QuizDTO quizDTO = new QuizDTO();
+
+        // Set the question text
+        quizDTO.setQuestion(questionData.get("question").toString());
+
+        // Set the correct answer
+        String correctAnswer = questionData.get("correct_answer").toString();
+        quizDTO.setCorrectAnswer(correctAnswer);
+
+        // Combine correct and incorrect answers into options
+        @SuppressWarnings("unchecked")
+        List<String> incorrectAnswers = (List<String>) questionData.get("incorrect_answers");
+        List<String> options = new ArrayList<>(incorrectAnswers);
+        options.add(correctAnswer);
+
+        // Shuffle the options for random display
+        Collections.shuffle(options);
+        quizDTO.setOptions(options);
+
+        // Map additional fields
+        quizDTO.setCategory(questionData.get("category").toString());
+        quizDTO.setDifficulty(questionData.get("difficulty").toString());
+
+        return quizDTO;
     }
 }

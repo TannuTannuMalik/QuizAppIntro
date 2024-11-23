@@ -23,13 +23,7 @@ public class AdminController {
     private EmailService emailService;
 
     // Create a new quiz tournament
-    @PostMapping("/create-quiz")
-    public ResponseEntity<Quiz> createQuiz(@RequestBody QuizDTO quizDTO) {
-        Quiz quiz = adminService.createQuizTournament(quizDTO); // Correct method call
-        // Notify all users except admin
-        adminService.notifyUsersAboutNewQuiz(quiz.getId()); // Notify users about the new quiz
-        return ResponseEntity.status(HttpStatus.CREATED).body(quiz);
-    }
+
 
     // View all quizzes
     @GetMapping("/quizzes")
