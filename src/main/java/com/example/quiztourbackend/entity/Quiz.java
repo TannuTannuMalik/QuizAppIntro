@@ -1,11 +1,8 @@
 package com.example.quiztourbackend.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-
+import jakarta.persistence.*;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 public class Quiz {
@@ -14,12 +11,21 @@ public class Quiz {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name; // Add this field
-    private String category;
-    private String difficulty;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private int likes; // Add if you're using 'incrementLikes'
+    private String name; // Name of the quiz
+    private String category; // Quiz category (e.g., General Knowledge, Sports, etc.)
+    private String difficulty; // Quiz difficulty (e.g., easy, medium, hard)
+    private LocalDate startDate; // Start date of the quiz
+    private LocalDate endDate; // End date of the quiz
+    private int likes; // Number of likes for the quiz
+
+    @ElementCollection // To store options for each quiz dynamically
+    @CollectionTable(name = "quiz_questions", joinColumns = @JoinColumn(name = "quiz_id"))
+    @Column(name = "questions")
+    private List<String> questions; // List of questions for the quiz
+
+    // Default Constructor
+    public Quiz() {
+    }
 
     // Getters and Setters
     public Long getId() {
@@ -30,11 +36,11 @@ public class Quiz {
         this.id = id;
     }
 
-    public String getName() { // Getter for name
+    public String getName() {
         return name;
     }
 
-    public void setName(String name) { // Setter for name
+    public void setName(String name) {
         this.name = name;
     }
 
@@ -78,8 +84,16 @@ public class Quiz {
         this.likes = likes;
     }
 
-    public void incrementLikes() { // Increment likes logic
+    public void incrementLikes() {
         this.likes++;
+    }
+
+    public List<String> getQuestions() {
+        return questions;
+    }
+
+    public void setQuestions(List<String> questions) {
+        this.questions = questions;
     }
 }
 

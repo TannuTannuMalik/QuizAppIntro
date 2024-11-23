@@ -25,11 +25,14 @@ public class PasswordResetController {
             passwordResetService.requestPasswordReset(email);
             return ResponseEntity.ok("Password reset instructions have been sent to your email.");
         } catch (UserNotFoundException e) {
+            System.out.println("Error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("User with this email does not exist.");
         } catch (Exception e) {
+            System.out.println("Unexpected error: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("An unexpected error occurred.");
         }
     }
+
 }

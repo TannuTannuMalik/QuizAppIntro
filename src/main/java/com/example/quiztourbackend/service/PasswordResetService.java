@@ -26,27 +26,37 @@ public class PasswordResetService {
         this.emailService = emailService;
     }
 
-    // Request password reset by email
     public void requestPasswordReset(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User with this email does not exist"));
+        try {
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new UserNotFoundException("User with this email does not exist"));
 
-        // Generate a password reset token
-        String token = UUID.randomUUID().toString();
+            // Generate a password reset token
+            String token = UUID.randomUUID().toString();
 
-        // Save the token with expiration time (e.g., 1 hour)
-        PasswordResetToken resetToken = new PasswordResetToken();
-        resetToken.setToken(token);
-        resetToken.setUser(user);
-        resetToken.setExpirationDate(LocalDateTime.now().plusHours(1)); // Token expires in 1 hour
-        tokenRepository.save(resetToken);
+            // Save the token with expiration time (e.g., 1 hour)
+            PasswordResetToken resetToken = new PasswordResetToken();
+            resetToken.setToken(token);
+            resetToken.setUser(user);
+            resetToken.setExpirationDate(LocalDateTime.now().plusHours(1)); // Token expires in 1 hour
+            tokenRepository.save(resetToken);
 
-        // Send an email with the reset link
-        String resetLink = "http://localhost:8080/reset-password?token=" + token;
-        String emailBody = "To reset your password, click the link below:\n" + resetLink;
+            // Send an email with the reset link
+            String resetLink = "http://localhost:8082/reset-password?token=" + token;
+            String emailBody = "To reset your password, click the link below:\n" + resetLink;
 
-        emailService.sendEmail(user.getEmail(), "Password Reset Request", emailBody);
+            emailService.sendEmail(user.getEmail(), "Password Reset Request", emailBody);
+        } catch (UserNotFoundException e) {
+            // Log the error to better debug
+            System.out.println("User not found: " + e.getMessage());
+            throw e;  // Re-throw the exception to be handled at the controller level
+        } catch (Exception e) {
+            // Log the error for other exceptions
+            System.out.println("Error occurred during password reset: " + e.getMessage());
+            throw new RuntimeException("An unexpected error occurred.");
+        }
     }
+
 
     // Reset the password using the token
     public void resetPassword(String token, String newPassword) {
